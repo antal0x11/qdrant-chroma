@@ -2,6 +2,7 @@ import sys
 import time
 import yaml
 import json
+import datetime
 import numpy as np
 from qdrant_client import QdrantClient, models
 from tqdm import  tqdm
@@ -40,6 +41,7 @@ def load_data(config):
             client.create_collection(
                     collection_name=item.get('collection'),
                     vectors_config = models.VectorParams(size=item.get('dimension'), distance=models.Distance.COSINE))
+            start_date = datetime.datetime.now()
             start_time = time.perf_counter()
             with open(item.get('path_to_payload'), 'r') as payloads_file:
                 vectors = np.load(item.get('path_to_vectors'), mmap_mode='r')
@@ -52,8 +54,11 @@ def load_data(config):
                             )
                     id += 1
             end_time = time.perf_counter()
+            end_date = datetime.datime.now()
             with open(f"out/{item.get('collection')}_result.json", 'w') as output_file:
                 _tmp = item
+                _tmp['start_time'] = start_date.strftime("%Y-%m-%d %H:%M:%S")
+                _tmp['end_time'] = end_date.strftime("%Y-%m-%d %H:%M:%S")
                 _tmp['duration'] = end_time - start_time
                 output_file.write(json.dumps(_tmp, indent=4))
         elif item.get('db_type') == 'chroma':
