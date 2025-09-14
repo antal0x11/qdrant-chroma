@@ -52,7 +52,7 @@ def load_data(config):
                             )
                     id += 1
             end_time = time.perf_counter()
-            with open(f"out/{item.get('collection')/result.json}", 'w') as output_file:
+            with open(f"out/{item.get('collection')}/result.json", 'w') as output_file:
                 _tmp = item
                 _tmp['duration'] = end_time - start_time
                 output_file.write(json.dumps(_tmp, indent=4))
