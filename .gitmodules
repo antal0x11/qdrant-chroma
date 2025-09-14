@@ -1,0 +1,3 @@
+[submodule "vector-databases"]
+	path = vector-databases
+	url = git@github.com:antal0x11/vector-databases.git
