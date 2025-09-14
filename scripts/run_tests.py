@@ -34,14 +34,13 @@ def load_data(config):
             client = QdrantClient(url=item.get('url'))
 
             # Default distance is Cosine
-            client.createCollection(
+            client.create_collection(
                     collection_name=item.get('collection'),
-                    vectors_config = models.VectorParams(size=item.get('dimension'), models.distance.COSINE))
+                    vectors_config = models.VectorParams(size=item.get('dimension'), distance=models.Distance.COSINE))
             start_time = time.perf_counter()
             with open(item.get('path_to_payload'), 'r') as payloads_file:
-                vectors = np.load(item.get('path_to_vectors', mmap_mode='r'))
+                vectors = np.load(item.get('path_to_vectors'), mmap_mode='r')
                 id = 1
-                out_file = 
                 for payload in payloads_file:
                     vector_payload = json.loads(payload)
                     client.upsert(
