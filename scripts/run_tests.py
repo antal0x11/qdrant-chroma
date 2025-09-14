@@ -29,7 +29,10 @@ def load_data(config):
     if config is None:
         print('Load config not found')
         return None
-    for item in tqdm(config):
+    config_size = len(config)
+    current_config = 1
+    for item in config:
+        print(f"=> Running config {current_config}/{config_size}")
         if item.get('db_type') == 'qdrant':
             client = QdrantClient(url=item.get('url'))
 
@@ -41,21 +44,23 @@ def load_data(config):
             with open(item.get('path_to_payload'), 'r') as payloads_file:
                 vectors = np.load(item.get('path_to_vectors'), mmap_mode='r')
                 id = 1
-                for payload in payloads_file:
+                for payload in tqdm(payloads_file):
                     vector_payload = json.loads(payload)
                     client.upsert(
                             collection_name=item.get('collection'),
                             points=[models.PointStruct(id=id,vector=vectors[id-1], payload=vector_payload)],
                             )
+                    id += 1
             end_time = time.perf_counter()
-            with open(f"out/{config.get('collection')/result.json}", 'w') as output_file:
+            with open(f"out/{item.get('collection')/result.json}", 'w') as output_file:
                 _tmp = item
                 _tmp['duration'] = end_time - start_time
-                output_file.wrie(json.dumps(_tmp, indent=4))
+                output_file.write(json.dumps(_tmp, indent=4))
         elif item.get('db_type') == 'chroma':
             pass
         else:
             print('Unknown type: object {}'.format(item))
+        current_config += 1
         
     
 
