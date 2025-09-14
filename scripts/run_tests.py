@@ -5,6 +5,7 @@ import json
 import datetime
 import numpy as np
 from qdrant_client import QdrantClient, models
+import chromadb
 from tqdm import  tqdm
 
 def main():
@@ -55,19 +56,51 @@ def load_data(config):
                     id += 1
             end_time = time.perf_counter()
             end_date = datetime.datime.now()
-            with open(f"out/{item.get('collection')}_result.json", 'w') as output_file:
+            with open(f"out/{item.get('collection')}_{item.get('db_type')}_result.json", 'w') as output_file:
                 _tmp = item
                 _tmp['start_time'] = start_date.strftime("%Y-%m-%d %H:%M:%S")
                 _tmp['end_time'] = end_date.strftime("%Y-%m-%d %H:%M:%S")
                 _tmp['duration'] = end_time - start_time
                 output_file.write(json.dumps(_tmp, indent=4))
         elif item.get('db_type') == 'chroma':
-            pass
+            chroma_client = chromadb.HttpClient(host=item.get('url'), port=8000)
+
+            chroma_collection = chroma_client.create_collection(
+                    name=item.get('collection'),
+                    configuration={
+                        "hnsw": {
+                            "space": "cosine",
+                            }
+                        },
+                    )
+
+            start_date = datetime.datetime.now()
+            start_time = time.perf_counter()
+
+            with open(item.get('path_to_payload'), 'r') as payloads_file:
+                vectors = np.load(item.get('path_to_vectors'), mmap_mode='r')
+                id = 1
+                for payload in tqdm(payloads_file):
+                    vector_payload = json.loads(payload)
+
+                    collection.add(
+                            embeddings=[vectors[id-1]],
+                            metadatas=[vector_payload],
+                            ids=[str(id)]
+                            )
+                    id += 1
+
+            end_time = time.perf_counter()
+            end_date = datetime.datime.now()
+            with open(f"out/{item.get('collection')}_{item.get('db_type')}_result.json", 'w') as output_file:
+                _tmp = item
+                _tmp['start_time'] = start_date.strftime("%Y-%m-%d %H:%M:%S")
+                _tmp['end_time'] = end_date.strftime("%Y-%m-%d %H:%M:%S")
+                _tmp['duration'] = end_time - start_time
+                output_file.write(json.dumps(_tmp, indent=4))
         else:
             print('Unknown type: object {}'.format(item))
         current_config += 1
-        
-    
 
 def search_data(config):
     if config is None:
