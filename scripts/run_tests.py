@@ -55,7 +55,7 @@ def load_data(config):
                             )
                     id += 1
             end_time = time.perf_counter()
-            end_date = datetime.datime.now()
+            end_date = datetime.datetime.now()
             with open(f"out/{item.get('collection')}_{item.get('db_type')}_result.json", 'w') as output_file:
                 _tmp = item
                 _tmp['start_time'] = start_date.strftime("%Y-%m-%d %H:%M:%S")
@@ -91,7 +91,7 @@ def load_data(config):
                     id += 1
 
             end_time = time.perf_counter()
-            end_date = datetime.datime.now()
+            end_date = datetime.datetime.now()
             with open(f"out/{item.get('collection')}_{item.get('db_type')}_result.json", 'w') as output_file:
                 _tmp = item
                 _tmp['start_time'] = start_date.strftime("%Y-%m-%d %H:%M:%S")
