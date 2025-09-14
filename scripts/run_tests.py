@@ -83,7 +83,7 @@ def load_data(config):
                 for payload in tqdm(payloads_file):
                     vector_payload = json.loads(payload)
 
-                    collection.add(
+                    chroma_collection.add(
                             embeddings=[vectors[id-1]],
                             metadatas=[vector_payload],
                             ids=[str(id)]
