@@ -3,6 +3,9 @@ Installation, configuration and benchmarks for qdrant and chroma vector database
 
 ### Installation
 
+Install and configure qdrant and chroma in standalone or distributed mode(only for qdrant)
+with vector-database ansible module.
+
 ```
 python3 -m venv venv
 ```
