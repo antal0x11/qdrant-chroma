@@ -1,0 +1,27 @@
+---
+# Load configuration
+load_config:
+  - dimension: 16
+    collection: 'collection_name'
+    path_to_vectors: 'path/to/vectors.npy'
+    path_to_payload: 'path/to/payloads.json'
+    url: 'server_url'
+    db_type: 'qdrant'
+  - dimension: 16
+    collection: 'collection_name'
+    path_to_vectors: 'path/to/vectors.npy'
+    path_to_payload: 'path/to/payloads.json'
+    url: 'server_url'
+    db_type: 'chroma'
+search_config:
+  - collection: 'collection_name'
+    path_to_tests: 'path_to_tests'
+    with_filters: false
+    url: 'server_url'
+    db_type: 'qdrant'
+  - collection: 'collection_name'
+    path_to_tests: 'path_to_tests'
+    with_filters: false
+    url: 'server_url'
+    db_type: 'chroma'
+
