@@ -34,7 +34,7 @@ def load_data(config):
     config_size = len(config)
     current_config = 1
     for item in config:
-        print(f"=> Running config {current_config}/{config_size}")
+        print(f"=> Running load config {current_config}/{config_size}")
         if item.get('db_type') == 'qdrant':
             client = QdrantClient(url=item.get('url'))
 
@@ -106,6 +106,52 @@ def search_data(config):
     if config is None:
         print('Search config not found')
         return None
+    config_size = len(config)
+    current_config = 1
+    for item in config:
+        print(f"=> Running search config {current_config}/{config_size}")
+        if item.get('db_type') == 'qdrant':
+            client = QdrantClient(url=item.get('url'))
+
+            start_date = datetime.datetime.now()
+            start_time = time.perf_counter()
+            with open(item.get('path_to_tests'), 'r') as tests_file:
+                for test in tqdm(tests_file):
+                    query = json.loads(test)
+                    client.query_points(
+                            collection_name=item.get('collection'),
+                            query=query['query'],
+                            )
+            end_time = time.perf_counter()
+            end_date = datetime.datetime.now()
+            with open(f"out/search_{item.get('collection')}_{item.get('db_type')}_result.json", 'w') as output_file:
+                _tmp = item
+                _tmp['start_time'] = start_date.strftime("%Y-%m-%d %H:%M:%S")
+                _tmp['end_time'] = end_date.strftime("%Y-%m-%d %H:%M:%S")
+                _tmp['duration'] = end_time - start_time
+                output_file.write(json.dumps(_tmp, indent=4))
+        elif item.get('db_type') == 'chroma':
+            chroma_client = chromadb.HttpClient(host=item.get('url'), port=8000)
+            collection = chroma_client.get_collection(name=item.get('collection'))
+            start_date = datetime.datetime.now()
+            start_time = time.perf_counter()
+
+            with open(item.get('path_to_tests'), 'r') as tests_file:
+                for tests in tqdm(tests_file):
+                    query = json.loads(test)
+                    collection.query_embeddings=[query['query']]
+
+            end_time = time.perf_counter()
+            end_date = datetime.datetime.now()
+            with open(f"out/search_{item.get('collection')}_{item.get('db_type')}_result.json", 'w') as output_file:
+                _tmp = item
+                _tmp['start_time'] = start_date.strftime("%Y-%m-%d %H:%M:%S")
+                _tmp['end_time'] = end_date.strftime("%Y-%m-%d %H:%M:%S")
+                _tmp['duration'] = end_time - start_time
+                output_file.write(json.dumps(_tmp, indent=4))
+        else:
+            print('Unknown type: object {}'.format(item))
+        current_config += 1
 
 
 if __name__ == '__main__':
