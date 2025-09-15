@@ -144,7 +144,7 @@ def search_data(config):
             start_time = time.perf_counter()
 
             with open(item.get('path_to_tests'), 'r') as tests_file:
-                for tests in tqdm(tests_file):
+                for test in tqdm(tests_file):
                     query = json.loads(test)
                     collection.query_embeddings=[query['query']]
 
