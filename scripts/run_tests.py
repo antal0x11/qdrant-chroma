@@ -91,7 +91,7 @@ def load_data(config):
                         chroma_collection.add(
                                 embeddings=vectors[batch_start:batch_end],
                                 metadatas=_payload_list,
-                                ids=[str(i) for i in rage(batch_start,batch_end]
+                                ids=[str(i) for i in rage(batch_start,batch_end)]
                                 )
                         del _payload_list[:]
                         batch_start += 1000
