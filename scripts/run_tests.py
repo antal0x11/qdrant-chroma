@@ -65,7 +65,7 @@ def load_data(config):
         elif item.get('db_type') == 'chroma':
             chroma_client = chromadb.HttpClient(host=item.get('url'), port=8000)
 
-            chroma_collection = chroma_client.create_collection(
+            chroma_collection = chroma_client.get_or_create_collection(
                     name=item.get('collection'),
                     configuration={
                         "hnsw": {
@@ -79,16 +79,23 @@ def load_data(config):
 
             with open(item.get('path_to_payload'), 'r') as payloads_file:
                 vectors = np.load(item.get('path_to_vectors'), mmap_mode='r')
-                id = 1
+                
+                batch_start = 0
+                batch_end = 1000
+                _payload_list = []
                 for payload in tqdm(payloads_file):
                     vector_payload = json.loads(payload)
+                    _payload_list.append(vector_payload)
 
-                    chroma_collection.add(
-                            embeddings=[vectors[id-1]],
-                            metadatas=[vector_payload],
-                            ids=[str(id)]
-                            )
-                    id += 1
+                    if len(_payload_list) == 1000:
+                        chroma_collection.add(
+                                embeddings=vectors[batch_start:batch_end],
+                                metadatas=_payload_list,
+                                ids=[str(i) for i in rage(batch_start,batch_end]
+                                )
+                        del _payload_list[:]
+                        batch_start += 1000
+                        batch_end += 1000
 
             end_time = time.perf_counter()
             end_date = datetime.datetime.now()
